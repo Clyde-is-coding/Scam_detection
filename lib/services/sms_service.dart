@@ -1,98 +1,29 @@
 import 'dart:async';
-import 'package:sms/sms.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'ml_service.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import '../models/message_model.dart';
+
+// Conditional import for SMS - only on mobile platforms
+import 'sms_service_stub.dart' if (dart.library.io) 'sms_service_mobile.dart' as sms_impl;
 
 class SMSService {
   static final SMSService instance = SMSService._internal();
   factory SMSService() => instance;
   SMSService._internal();
 
-  SmsReceiver? _receiver;
-  StreamSubscription? _subscription;
-  Function(ScannedMessage)? onMessageReceived;
+  // Delegate to platform-specific implementation
+  final sms_impl.SMSServiceMobile _impl = sms_impl.SMSServiceMobile();
 
-  Future<bool> checkPermission() async {
-    final status = await Permission.sms.status;
-    if (status.isGranted) {
-      return true;
-    }
-    
-    final result = await Permission.sms.request();
-    return result.isGranted;
+  Function(ScannedMessage)? get onMessageReceived => _impl.onMessageReceived;
+  set onMessageReceived(Function(ScannedMessage)? callback) {
+    _impl.onMessageReceived = callback;
   }
 
-  Future<void> startListening() async {
-    final hasPermission = await checkPermission();
-    if (!hasPermission) {
-      throw Exception('SMS permission not granted');
-    }
-
-    _receiver = SmsReceiver();
-    
-    _subscription = _receiver!.onSmsReceived?.listen((SmsMessage message) async {
-      // Detect scam
-      final result = await MLService.instance.detectScam(message.body ?? '');
-      
-      // Create scanned message
-      final scannedMessage = ScannedMessage(
-        id: message.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
-        sender: message.sender ?? 'Unknown',
-        body: message.body ?? '',
-        date: message.date ?? DateTime.now(),
-        isScam: result.isScam,
-        confidence: result.confidence,
-      );
-      
-      // Notify listener
-      onMessageReceived?.call(scannedMessage);
-    });
-  }
-
-  Future<List<ScannedMessage>> getRecentMessages({int limit = 50}) async {
-    final hasPermission = await checkPermission();
-    if (!hasPermission) {
-      return [];
-    }
-
-    try {
-      final query = SmsQuery();
-      final messages = await query.querySms(
-        kinds: [SmsQueryKind.Inbox],
-        count: limit,
-      );
-
-      final scannedMessages = <ScannedMessage>[];
-      
-      for (var message in messages) {
-        final result = await MLService.instance.detectScam(message.body ?? '');
-        
-        scannedMessages.add(ScannedMessage(
-          id: message.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
-          sender: message.sender ?? 'Unknown',
-          body: message.body ?? '',
-          date: message.date ?? DateTime.now(),
-          isScam: result.isScam,
-          confidence: result.confidence,
-        ));
-      }
-      
-      return scannedMessages;
-    } catch (e) {
-      print('Error getting recent messages: $e');
-      return [];
-    }
-  }
-
-  void stopListening() {
-    _subscription?.cancel();
-    _subscription = null;
-    _receiver = null;
-  }
-
-  void dispose() {
-    stopListening();
-  }
+  Future<bool> checkPermission() => _impl.checkPermission();
+  Future<void> startListening() => _impl.startListening();
+  Future<List<ScannedMessage>> getRecentMessages({int limit = 50}) => 
+      _impl.getRecentMessages(limit: limit);
+  void stopListening() => _impl.stopListening();
+  void dispose() => _impl.dispose();
 }
+
 

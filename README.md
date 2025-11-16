@@ -103,3 +103,5 @@ This project is for educational purposes.
 
 This app is provided as-is. Always verify important messages through official channels. The detection accuracy depends on the quality of the ML model used.
 
+
+

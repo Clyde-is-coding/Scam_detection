@@ -24,33 +24,37 @@ if (flutterVersionName == null) {
 
 android {
     namespace "com.example.scam_detector"
-    compileSdkVersion 34
+    compileSdkVersion 36
     ndkVersion flutter.ndkVersion
 
+    defaultConfig {
+        applicationId "com.example.scam_detector"
+        minSdkVersion flutter.minSdkVersion
+        targetSdkVersion 36
+        versionCode flutterVersionCode.toInteger()
+        versionName flutterVersionName
+    }
+
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        // Use Java 17 for latest Gradle and plugin compatibility
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '17'
     }
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }
 
-    defaultConfig {
-        applicationId "com.example.scam_detector"
-        minSdkVersion flutter.minSdkVersion
-        targetSdkVersion 34
-        versionCode flutterVersionCode.toInteger()
-        versionName flutterVersionName
-    }
-
     buildTypes {
         release {
+            // Use debug signing config by default (or replace with your own keystore)
             signingConfig signingConfigs.debug
+            minifyEnabled false
+            shrinkResources false
         }
     }
 }
@@ -59,5 +63,7 @@ flutter {
     source '../..'
 }
 
-dependencies {}
+dependencies {
+    // You can add any extra dependencies here if needed
+}
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:provider/provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'services/sms_service.dart';
@@ -9,8 +10,10 @@ import 'providers/message_provider.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Request SMS permission on app start
-  await Permission.sms.request();
+  // Request SMS permission on app start (only on mobile)
+  if (!kIsWeb) {
+    await Permission.sms.request();
+  }
   
   // Initialize ML service
   await MLService.instance.initialize();
@@ -49,4 +52,5 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
 

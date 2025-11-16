@@ -1,6 +1,6 @@
 name: scam_detector
 description: A Flutter app for detecting scam SMS messages using machine learning
-publish_to: 'none'
+publish_to: 'none' # Prevents accidental publishing to pub.dev
 version: 1.0.0+1
 
 environment:
@@ -9,22 +9,21 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  
+
   # UI
-  cupertino_icons: ^1.0.6
-  
+  cupertino_icons: ^1.0.8 # Updated to a more recent version
+
   # SMS and Permissions
-
-  flutter_sms: ^2.3.3
-
+  # flutter_sms: ^2.3.3
   permission_handler: ^11.0.1
-  
+
   # Machine Learning
-  tflite_flutter: ^0.10.4
-  
+  # Consider using tflite_flutter_plus as a more modern alternative to tflite_flutter
+  tflite_plus: ^1.0.3 # Example version, check pub.dev for the latest
+
   # State Management
   provider: ^6.1.1
-  
+
   # Utilities
   path_provider: ^2.1.1
   shared_preferences: ^2.2.2
@@ -32,12 +31,14 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^3.0.0
+  flutter_lints: ^4.0.0 # Updated to the latest version for better linting rules
 
 flutter:
   uses-material-design: true
-  
+
+  # To add assets to your application, add an assets section, like this:
   assets:
     - assets/models/
     - assets/labels.txt
+
 
